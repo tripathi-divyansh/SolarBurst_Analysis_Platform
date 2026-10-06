@@ -1,0 +1,42 @@
+{
+  "model_name": "SolarBurst-XGBOOST-v1.0",
+  "model_type": "xgboost",
+  "file_sha256": "8a24c9530ec5d9d4e3f7b9a61d7ef0f1e814b8567f2cfcbba07bcaa465b71170",
+  "features_order": [
+    "peak_snr",
+    "net_peak",
+    "integrated_excess",
+    "prelim_duration_s",
+    "prelim_width_s",
+    "rise_slope",
+    "decay_slope",
+    "rise_decay_ratio",
+    "mf_max_score",
+    "mf_best_rise_s",
+    "mf_best_decay_s",
+    "cwt_max_score",
+    "cwt_best_scale_s",
+    "local_noise",
+    "local_baseline_level",
+    "local_baseline_slope",
+    "pre_post_level_diff",
+    "num_peaks",
+    "peak_prominence_ratio",
+    "exposure_fraction",
+    "gap_fraction",
+    "edge_distance_s",
+    "cadence_s",
+    "valid_sample_count"
+  ],
+  "accept_threshold": 0.65,
+  "review_threshold": 0.35,
+  "training_metadata": {
+    "model_type": "xgboost",
+    "n_train": 146,
+    "n_val": 74,
+    "pos_ratio": 0.1506849315068493,
+    "features_count": 24
+  },
+  "intended_use": "Scoring proposed solar X-ray burst candidates from permissive classical detectors",
+  "limitations": "Trained with engineered candidate features; physical parameters require profile fitting."
+}

@@ -1,0 +1,26 @@
+# SolarBurst Configuration: Sensitive Preset
+name: sensitive
+description: "Sensitive operating point for micro-flare searches and weak sub-A class thermal transients."
+
+# Preprocessing
+asls_lambda: 100000.0
+asls_p: 0.02
+baseline_iterations: 2
+
+# Candidate Proposal Thresholds
+matched_filter_snr_threshold: 2.8
+cwt_snr_threshold: 2.5
+derivative_threshold: 2.0
+hysteresis_seed_sigma: 3.2
+hysteresis_grow_sigma: 1.5
+
+# Machine Learning Scoring
+model_family: random_forest
+ml_accept_threshold: 0.55
+ml_review_threshold: 0.25
+
+# Physical Profile Fitting
+fit_profile: emg_convolution
+max_components: 3
+bootstrap_samples: 50
+fast_uncertainty: true

@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "solarburst"
+version = "1.0.0"
+description = "SolarBurst — Chandrayaan-2 XSM Solar Burst Analysis Platform"
+authors = [{ name = "Inter IIT Tech Meet 10.0 ISRO Team" }]
+license = { text = "GPL-3.0-or-later" }
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "astropy>=5.3.0",
+    "pandas>=2.0.0",
+    "scikit-learn>=1.3.0",
+    "xgboost>=2.0.0",
+    "pywavelets>=1.4.0",
+    "openpyxl>=3.1.0",
+    "xlrd>=2.0.0",
+    "cdflib>=1.0.0",
+    "typer>=0.9.0",
+    "pydantic>=2.0.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.22.0",
+]
+
+[project.scripts]
+solarburst = "solarburst.cli:app"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

@@ -1,0 +1,26 @@
+# SolarBurst Configuration: Balanced Preset (Recommended default)
+name: balanced
+description: "Balanced operating point maximizing recall while maintaining <= 1.0 false alarms per 24 hours of valid observing."
+
+# Preprocessing
+asls_lambda: 1000000.0
+asls_p: 0.01
+baseline_iterations: 3
+
+# Candidate Proposal Thresholds
+matched_filter_snr_threshold: 3.5
+cwt_snr_threshold: 3.0
+derivative_threshold: 2.5
+hysteresis_seed_sigma: 4.0
+hysteresis_grow_sigma: 1.8
+
+# Machine Learning Scoring
+model_family: random_forest
+ml_accept_threshold: 0.65
+ml_review_threshold: 0.35
+
+# Physical Profile Fitting
+fit_profile: emg_convolution
+max_components: 3
+bootstrap_samples: 50
+fast_uncertainty: true

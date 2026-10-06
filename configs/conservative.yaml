@@ -1,0 +1,26 @@
+# SolarBurst Configuration: Conservative Preset
+name: conservative
+description: "Conservative operating point prioritizing high precision and near-zero false alarms for published catalogs."
+
+# Preprocessing
+asls_lambda: 10000000.0
+asls_p: 0.005
+baseline_iterations: 3
+
+# Candidate Proposal Thresholds
+matched_filter_snr_threshold: 4.5
+cwt_snr_threshold: 4.0
+derivative_threshold: 3.5
+hysteresis_seed_sigma: 5.0
+hysteresis_grow_sigma: 2.2
+
+# Machine Learning Scoring
+model_family: random_forest
+ml_accept_threshold: 0.75
+ml_review_threshold: 0.45
+
+# Physical Profile Fitting
+fit_profile: emg_convolution
+max_components: 2
+bootstrap_samples: 100
+fast_uncertainty: true
