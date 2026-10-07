@@ -80,6 +80,7 @@ class PythonBridge {
       const res = await fetch(`${this.serviceUrl}/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: AbortSignal.timeout(600000), // 10 minutes for large full-day astronomical files
         body: JSON.stringify({
           filepath,
           preset: options.preset || 'balanced',

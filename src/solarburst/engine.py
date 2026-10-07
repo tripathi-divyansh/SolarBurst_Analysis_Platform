@@ -24,6 +24,21 @@ class SolarBurstEngine:
     Unified analysis engine for solar X-ray light curves.
     """
     def __init__(self, classifier: Optional[BurstClassifier] = None):
+        if classifier is None:
+            import os
+            from .ml.persistence import load_classifier
+            for path_try in [
+                "./models/pretrained/rf_baseline.joblib",
+                "../models/pretrained/rf_baseline.joblib",
+                "models/pretrained/rf_baseline.joblib",
+                os.path.join(os.path.dirname(__file__), "../../../models/pretrained/rf_baseline.joblib")
+            ]:
+                if os.path.exists(path_try):
+                    try:
+                        classifier = load_classifier(path_try)
+                        break
+                    except Exception:
+                        pass
         self.classifier = classifier
 
     def run_analysis(
@@ -134,11 +149,13 @@ class SolarBurstEngine:
         lo_grid = t_grid - dt_s / 2.0
         hi_grid = t_grid + dt_s / 2.0
 
-        for idx, cand in enumerate(candidates):
-            # Fit all accepted and review candidates
-            if cand.decision == "rejected":
-                continue
+        fitting_candidates = [c for c in candidates if c.decision != "rejected"]
+        if len(fitting_candidates) > 60:
+            fitting_candidates.sort(key=lambda c: c.seed_snr, reverse=True)
+            fitting_candidates = fitting_candidates[:60]
+            fitting_candidates.sort(key=lambda c: c.start_time_met)
 
+        for idx, cand in enumerate(fitting_candidates):
             # Extract candidate context slice
             mask_ctx = (t_grid >= cand.context_start_met) & (t_grid <= cand.context_end_met) & mask_valid
             sub_lo = lo_grid[mask_ctx]
@@ -190,11 +207,11 @@ class SolarBurstEngine:
             "candidates": [
                 {
                     "candidate_id": c.candidate_id,
-                    "start_time_met": c.start_time_met,
-                    "peak_time_met": c.peak_time_met,
-                    "end_time_met": c.end_time_met,
-                    "seed_snr": c.seed_snr,
-                    "ml_score": c.ml_score,
+                    "start_time_met": float(c.start_time_met) if np.isfinite(c.start_time_met) else 0.0,
+                    "peak_time_met": float(c.peak_time_met) if np.isfinite(c.peak_time_met) else 0.0,
+                    "end_time_met": float(c.end_time_met) if np.isfinite(c.end_time_met) else 0.0,
+                    "seed_snr": float(c.seed_snr) if np.isfinite(c.seed_snr) else 0.0,
+                    "ml_score": float(c.ml_score) if np.isfinite(c.ml_score) else 0.0,
                     "decision": c.decision,
                     "generator_flags": c.generator_flags
                 }

@@ -43,26 +43,43 @@ def load_xsm_fits(filepath: str) -> LightCurve:
         time_met = np.asarray(data[cols_map["TIME"]], dtype=np.float64)
         n = len(time_met)
 
-        # Rate
-        rate_col_name = "RATE" if "RATE" in cols_map else ("COUNTS" if "COUNTS" in cols_map else list(cols_map.keys())[1])
-        rate_val = np.asarray(data[cols_map[rate_col_name]], dtype=np.float64)
+        # Check for Chandrayaan-2 XSM Level-1 raw telemetry packets (DATAARRAY column)
+        is_level1_telemetry = "DATAARRAY" in cols_map and "RATE" not in cols_map and "COUNTS" not in cols_map
+        bad_dec = np.zeros(n, dtype=bool)
 
-        # Error
-        if "ERROR" in cols_map:
-            rate_err = np.asarray(data[cols_map["ERROR"]], dtype=np.float64)
-        elif "STAT_ERR" in cols_map:
-            rate_err = np.asarray(data[cols_map["STAT_ERR"]], dtype=np.float64)
-        else:
-            # Poisson approximation for rate with exposure
+        if is_level1_telemetry:
+            # Unpack 2048-byte telemetry packets: Word 8 is the Fast Counter (total photon counts per 1-second bin)
+            raw_pkts = np.asarray(data[cols_map["DATAARRAY"]])
+            arr_u16 = np.frombuffer(raw_pkts.tobytes(), dtype='>u2').reshape(len(raw_pkts), 1024)
+            rate_val = arr_u16[:, 8].astype(np.float64)
             timedel_val = float(hdr.get("TIMEDEL", 1.0))
-            expected_counts = np.maximum(rate_val * timedel_val, 0.0)
-            rate_err = np.sqrt(np.maximum(expected_counts, 1.0)) / timedel_val
+            rate_err = np.sqrt(np.maximum(rate_val, 1.0))
+
+            if "DECODINGSTATUSFLAG" in cols_map:
+                dec_flag = np.asarray(data[cols_map["DECODINGSTATUSFLAG"]], dtype=np.int32)
+                bad_dec = (dec_flag != 0)
+        else:
+            # Rate column
+            rate_col_name = "RATE" if "RATE" in cols_map else ("COUNTS" if "COUNTS" in cols_map else list(cols_map.keys())[1])
+            rate_val = np.asarray(data[cols_map[rate_col_name]], dtype=np.float64)
+
+            # Error
+            if "ERROR" in cols_map:
+                rate_err = np.asarray(data[cols_map["ERROR"]], dtype=np.float64)
+            elif "STAT_ERR" in cols_map:
+                rate_err = np.asarray(data[cols_map["STAT_ERR"]], dtype=np.float64)
+            else:
+                timedel_val = float(hdr.get("TIMEDEL", 1.0))
+                expected_counts = np.maximum(rate_val * timedel_val, 0.0)
+                rate_err = np.sqrt(np.maximum(expected_counts, 1.0)) / timedel_val
 
         # Quality & Fraction
         qual_mask = np.zeros(n, dtype=np.uint32)
         if "QUALITY" in cols_map:
             raw_q = np.asarray(data[cols_map["QUALITY"]], dtype=np.uint32)
             qual_mask |= raw_q
+        if np.any(bad_dec):
+            qual_mask[bad_dec] |= int(QualityFlag.INVALID)
 
         # Dead-time fraction / LIVETIME
         timedel = float(hdr.get("TIMEDEL", 1.0))

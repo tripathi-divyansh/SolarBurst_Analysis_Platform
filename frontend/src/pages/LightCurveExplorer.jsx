@@ -16,14 +16,34 @@ export default function LightCurveExplorer({ activeDataset, activeJob, selectedB
 
   if (!activeJob || !lcData) {
     return (
-      <div className="page-container" style={{ textAlign: 'center', paddingTop: '80px' }}>
-        <h2 style={{ color: 'var(--text-muted)' }}>No Analysis Results Available</h2>
-        <p style={{ color: 'var(--text-dim)', marginBottom: '20px' }}>
-          Please load an observation or run the synthetic demonstration first.
-        </p>
-        <button className="btn btn-primary" onClick={() => navigate('/upload')}>
-          Go to Upload & Inspect
-        </button>
+      <div className="page-container" style={{ textAlign: 'center', paddingTop: '60px', maxWidth: '680px', margin: '0 auto' }}>
+        <div className="card" style={{ padding: '40px 28px', border: '1px solid var(--border-subtle)' }}>
+          <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(0, 229, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px auto', color: 'var(--accent-cyan)' }}>
+            <Sliders size={24} />
+          </div>
+          <h2 style={{ color: 'var(--text-main)', fontSize: '20px', marginBottom: '10px' }}>
+            {activeDataset ? 'Dataset Loaded — Detection Not Run Yet' : 'No Analysis Results Available'}
+          </h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', marginBottom: '24px', lineHeight: '1.6' }}>
+            {activeDataset ? (
+              <>
+                Observation <strong>{activeDataset.name || activeDataset.filename}</strong> is selected as the active dataset. To calculate baseline trends and detect solar bursts, run the analysis pipeline in Detection Controls.
+              </>
+            ) : (
+              'Please upload an observation file or click "Load XSM Demo" in the top bar to explore pre-cataloged bursts.'
+            )}
+          </p>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            {activeDataset && (
+              <button className="btn btn-primary" onClick={() => navigate('/detection')}>
+                <Sliders size={16} /> Go to Detection Controls
+              </button>
+            )}
+            <button className="btn btn-secondary" onClick={() => navigate('/upload')}>
+              Upload & Inspect
+            </button>
+          </div>
+        </div>
       </div>
     );
   }

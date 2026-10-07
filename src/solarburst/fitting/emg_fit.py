@@ -94,10 +94,12 @@ def fit_emg_profile(
                 method="trf",
                 loss="linear",
                 x_scale="jac",
-                max_nfev=2500
+                max_nfev=200
             )
             if res.success and np.all(np.isfinite(res.fun)):
                 candidates.append(res)
+                if np.mean(res.fun**2) < 2.0:
+                    break
         except Exception:
             continue
 

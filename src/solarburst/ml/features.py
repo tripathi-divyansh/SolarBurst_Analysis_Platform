@@ -51,7 +51,9 @@ def extract_candidate_features(
     rate: np.ndarray,
     baseline: np.ndarray,
     noise_sigma: float,
-    dt_s: float
+    dt_s: float,
+    mf_global: Any = None,
+    cwt_global: Any = None
 ) -> Dict[str, float]:
     """
     Extract a single row of numeric features for a candidate within its context window.
@@ -95,13 +97,26 @@ def extract_candidate_features(
     decay_slope = float(net_peak / decay_dur_s)
     rise_decay_ratio = float(rise_dur_s / decay_dur_s)
 
-    # 3. Multiscale evidence in context
-    z_ctx = (r_ctx - b_ctx) / max(noise_sigma, 1e-6)
-    mf = run_matched_filter_bank(z_ctx, dt_s, threshold=1.0)
-    cwt = run_cwt_candidate_detector(z_ctx, dt_s, threshold=1.0)
-    
-    mf_max = float(np.nanmax(mf["max_score"])) if len(mf["max_score"]) > 0 else 0.0
-    cwt_max = float(np.nanmax(cwt["max_cwt_score"])) if len(cwt["max_cwt_score"]) > 0 else 0.0
+    # 3. Multiscale evidence in context (O(1) slice from global precomputation)
+    if mf_global is not None and "max_score" in mf_global and len(mf_global["max_score"]) == len(time_met):
+        mf_max = float(np.nanmax(mf_global["max_score"][mask_ctx])) if np.any(mask_ctx) else 0.0
+        mf_best_r = float(np.median(mf_global["best_scale_rise"][mask_ctx])) if np.any(mask_ctx) else 16.0
+        mf_best_d = float(np.median(mf_global["best_scale_decay"][mask_ctx])) if np.any(mask_ctx) else 64.0
+    else:
+        z_ctx = (r_ctx - b_ctx) / max(noise_sigma, 1e-6)
+        mf = run_matched_filter_bank(z_ctx, dt_s, threshold=1.0)
+        mf_max = float(np.nanmax(mf["max_score"])) if len(mf["max_score"]) > 0 else 0.0
+        mf_best_r = float(np.median(mf["best_scale_rise"])) if len(mf["best_scale_rise"]) > 0 else 16.0
+        mf_best_d = float(np.median(mf["best_scale_decay"])) if len(mf["best_scale_decay"]) > 0 else 64.0
+
+    if cwt_global is not None and "max_cwt_score" in cwt_global and len(cwt_global["max_cwt_score"]) == len(time_met):
+        cwt_max = float(np.nanmax(cwt_global["max_cwt_score"][mask_ctx])) if np.any(mask_ctx) else 0.0
+        cwt_best_scale = float(np.median(cwt_global["best_scale_s"][mask_ctx])) if np.any(mask_ctx) else 32.0
+    else:
+        z_ctx = (r_ctx - b_ctx) / max(noise_sigma, 1e-6)
+        cwt = run_cwt_candidate_detector(z_ctx, dt_s, threshold=1.0)
+        cwt_max = float(np.nanmax(cwt["max_cwt_score"])) if len(cwt["max_cwt_score"]) > 0 else 0.0
+        cwt_best_scale = float(np.median(cwt["best_scale_s"])) if len(cwt["best_scale_s"]) > 0 else 32.0
     
     # 4. Background and local slopes
     # Fit simple line to baseline in context
@@ -139,10 +154,10 @@ def extract_candidate_features(
         "decay_slope": decay_slope,
         "rise_decay_ratio": rise_decay_ratio,
         "mf_max_score": mf_max,
-        "mf_best_rise_s": float(np.median(mf["best_scale_rise"])),
-        "mf_best_decay_s": float(np.median(mf["best_scale_decay"])),
+        "mf_best_rise_s": mf_best_r,
+        "mf_best_decay_s": mf_best_d,
         "cwt_max_score": cwt_max,
-        "cwt_best_scale_s": float(np.median(cwt["best_scale_s"])),
+        "cwt_best_scale_s": cwt_best_scale,
         "local_noise": float(noise_sigma),
         "local_baseline_level": b_at_peak,
         "local_baseline_slope": b_slope,
@@ -174,10 +189,18 @@ def extract_features_table(
 ) -> Tuple[np.ndarray, List[str]]:
     """
     Extract 2D feature matrix (n_candidates x n_features) and update candidate.features in-place.
+    Precomputes multiscale evidence globally once across the series for instant evaluation.
     """
+    z_global = (rate - baseline) / max(noise_sigma, 1e-6)
+    mf_global = run_matched_filter_bank(z_global, dt_s, threshold=1.0)
+    cwt_global = run_cwt_candidate_detector(z_global, dt_s, threshold=1.0)
+
     rows = []
     for cand in candidates:
-        feat_dict = extract_candidate_features(cand, time_met, rate, baseline, noise_sigma, dt_s)
+        feat_dict = extract_candidate_features(
+            cand, time_met, rate, baseline, noise_sigma, dt_s,
+            mf_global=mf_global, cwt_global=cwt_global
+        )
         cand.features = feat_dict
         row = [feat_dict[k] for k in FEATURE_NAMES]
         rows.append(row)

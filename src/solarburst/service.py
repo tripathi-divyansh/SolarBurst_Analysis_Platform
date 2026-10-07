@@ -93,6 +93,16 @@ def inspect_dataset(req: InspectRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+def clean_json_floats(obj):
+    if isinstance(obj, float):
+        return obj if np.isfinite(obj) else None
+    if isinstance(obj, dict):
+        return {k: clean_json_floats(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [clean_json_floats(v) for v in obj]
+    return obj
+
+
 @api_app.post("/analyze")
 def run_analysis(req: AnalyzeRequest):
     if not os.path.exists(req.filepath):
@@ -117,7 +127,7 @@ def run_analysis(req: AnalyzeRequest):
 
         # Run analysis
         result = engine.run_analysis(lc, cfg)
-        return result
+        return clean_json_floats(result)
     except Exception as e:
         import traceback
         traceback.print_exc()
