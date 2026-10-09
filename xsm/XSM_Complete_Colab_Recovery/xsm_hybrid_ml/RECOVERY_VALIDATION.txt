@@ -1,0 +1,12 @@
+Recovery validation — 10 October 2026
+Executed locally with the recorded Python 3.12 dependencies; not in the Colab browser.
+PASS: all eight notebook code cells parse.
+PASS: restored day split 130 training / 96 validation / 54 test candidates.
+PASS: training-only Isolation Forest threshold reproduced: 0.5623955248658769.
+PASS: saved XGBoost best round 205; final round 235; patience 30.
+PASS: saved test metrics reproduced: selected XGBoost TP37 / FN3 / FP2.
+PASS: validation-only regularization comparison reproduced; original retained.
+PASS: optional July scoring runs against included LC-derived arrays.
+Notebook upload and backup ZIP round trip are tested with mocked Colab file dialogs.
+Installation over the Colab package network and interactive download dialogs require live Colab.
+No real event labels created; no claims of real-XSM accuracy.

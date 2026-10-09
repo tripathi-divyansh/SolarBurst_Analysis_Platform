@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xsm-hybrid-ml"
+version = "0.2.0"
+description = "XSM candidate detection, causal FRED fitting, and leakage-aware XGBoost training"
+requires-python = ">=3.11"
+dependencies = [
+  "numpy>=1.26,<3", "pandas>=2.2,<3", "scipy>=1.13,<2",
+  "scikit-learn>=1.5,<2", "xgboost-cpu>=2.1,<4",
+  "astropy>=6,<9", "PyWavelets>=1.6,<2", "joblib>=1.3,<2",
+  "openpyxl>=3.1,<4", "xlrd>=2,<3"
+]
+[project.optional-dependencies]
+test = ["pytest>=8,<10"]
+[project.scripts]
+xsm-burst = "xsm_burst.cli:main"
+[tool.setuptools.packages.find]
+where = ["src"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+filterwarnings = ["error::RuntimeWarning"]

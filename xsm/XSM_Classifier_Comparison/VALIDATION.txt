@@ -1,0 +1,27 @@
+VALIDATED WORKFLOW: XSM synthetic classifier comparison v1
+
+Full run completed: 96 training, 36 validation, 60 test observations.
+Models selected using validation only; test simulations generated afterward.
+XGBoost selected; best validation log-loss round: 205.
+
+Held-out simulations contained 40 injected bursts:
+Isolation Forest: 39 recovered, 1 missed, 67 false detections across all test observations.
+Random Forest: 33 recovered, 7 missed, 1 false detection across all test observations.
+XGBoost: 37 recovered, 3 missed, 2 false detections across all test observations.
+XGBoost event precision 94.87%, event recall 92.5%; these are simulation metrics, NOT real-data accuracy.
+Only two injected test events were in the weakest band; weak-event performance is uncertain.
+Zero false detections in five simulated hours of zero-burst controls does not establish a zero false-alarm rate.
+
+Checks completed:
+- Independent simulation seed ranges; model and threshold selection frozen before test generation.
+- Real input frame and existing Isolation Forest unchanged by the experiment.
+- Random Forest and XGBoost saved/reloaded predictions match the recorded test predictions.
+- Selected XGBoost round matches the minimum recorded validation log loss.
+- Selected-model inference runs on both saved July 16 XSM candidates, tagged exploratory/unvalidated.
+- Loss and comparison figures visually inspected.
+
+Both classifiers were first exercised in a separate small software check with disjoint development seeds.
+The full reported test was not used to change hyperparameters or select the winner.
+All simulation models use simplified noise and event families. Actual instrument conditions may differ substantially.
+Code was run locally with Python 3.12; a live Colab browser session was not available.
+Exact installed library versions are recorded in example_results/protocol.json.

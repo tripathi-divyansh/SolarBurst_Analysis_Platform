@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="https://pds.nasa.gov/pds4/pds/v1/PDS4_PDS_1B00.sch"
+  schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<Product_Observational xmlns="http://pds.nasa.gov/pds4/pds/v1" xmlns:pds="http://pds.nasa.gov/pds4/pds/v1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pds.nasa.gov/pds4/pds/v1  https://pds.nasa.gov/pds4/pds/v1/PDS4_PDS_1B00.xsd">
+    <Identification_Area>
+        <logical_identifier>urn:isro:isda:ch2_cho.xsm:data_calibrated:ch2_xsm_20260716_level2_gti</logical_identifier>
+        <version_id>1.0</version_id>
+        <title>Chandrayaan-2 Orbiter XSM Experiment</title>
+        <information_model_version>1.11.0.0</information_model_version>
+        <product_class>Product_Observational</product_class>
+        <Modification_History>
+            <Modification_Detail>
+                <modification_date>2026-07-24</modification_date>
+                <version_id>1.0</version_id>
+                <description>Created by XSM POC PRL</description>
+            </Modification_Detail>
+        </Modification_History>
+    </Identification_Area>
+    <Observation_Area>
+        <Time_Coordinates>
+            <start_date_time>2026-07-16T00:00:00.652Z</start_date_time>
+            <stop_date_time>2026-07-16T23:59:59.727Z</stop_date_time>
+        </Time_Coordinates>
+        <Primary_Result_Summary>
+            <purpose>Science</purpose>
+            <processing_level>Calibrated</processing_level>
+            <description>
+        A series of multiply defined digital objects.             
+      </description>
+        </Primary_Result_Summary>
+        <Investigation_Area>
+            <name>Chandrayaan-2</name>
+            <type>Mission</type>
+            <Internal_Reference>
+                <lidvid_reference>urn:isro:isda:context:investigation:mission.chandrayaan2::1.0</lidvid_reference>
+                <reference_type>data_to_investigation</reference_type>
+            </Internal_Reference>
+        </Investigation_Area>
+        <Observing_System>
+            <name>Observing System</name>
+            <Observing_System_Component>
+                <name>Chandrayaan-2 Orbiter</name>
+                <type>Spacecraft</type>
+                <description>
+         Chandrayaan-2 Orbiter is the orbitercraft of the mission which is placed in polar orbit around Moon,  
+         carrying a suite of scientific instruments.        
+        </description>
+            </Observing_System_Component>
+            <Observing_System_Component>
+                <name>Solar X-ray Monitor</name>
+                <type>Instrument</type>
+                <description>
+        Solar X-ray Monitor (abbreviated as XSM) is a scientific instrument on-board the Chandrayaan-2 
+        orbiter with an objective of performing X-ray spectroscopy of the Sun. The instrument employs 
+        Silicon Drift Detector (SDD) to cover the X-ray energy range of 1-15 keV with a spectral
+        resolution better than 180 eV at 5.9 keV. XSM also incorporates an innovative moving mechanism 
+        in order to cover the wide range of intensities of Solar X-ray flares. XSM provides measurement 
+        of Solar X-ray spectrum  with a time cadence of one second.
+        </description>
+            </Observing_System_Component>
+        </Observing_System>
+        <Target_Identification>
+            <name>Sun</name>
+            <type>Sun</type>
+            <description>
+      Sun is the star at the center of Solar system. 
+      </description>
+        </Target_Identification>
+    </Observation_Area>
+    <File_Area_Observational>
+        <File>
+            <file_name>ch2_xsm_20260716_v1_level2.gti</file_name>
+            <local_identifier>file</local_identifier>
+            <creation_date_time>2026-07-24T09:50:35</creation_date_time>
+            <file_size unit="byte">11520</file_size>
+            <records>10</records>
+            <md5_checksum>2d444cf30d4775349d21a4441ddba65b</md5_checksum>
+        </File>
+        <Header>
+            <local_identifier>header_Primary</local_identifier>
+            <offset unit="byte">0</offset>
+            <object_length unit="byte">2880</object_length>
+            <parsing_standard_id>FITS 3.0</parsing_standard_id>
+        </Header>
+        <Header>
+            <local_identifier>header_GTI</local_identifier>
+            <offset unit="byte">2880</offset>
+            <object_length unit="byte">5760</object_length>
+            <parsing_standard_id>FITS 3.0</parsing_standard_id>
+        </Header>
+        <Table_Binary>
+            <local_identifier>data_GTI</local_identifier>
+            <offset unit="byte">8640</offset>
+            <records>10</records>
+            <description>The records count is the number of rows in this table</description>
+            <Record_Binary>
+                <fields>2</fields>
+                <groups>0</groups>
+                <record_length unit="byte">16</record_length>
+                <Field_Binary>
+                    <name>START</name>
+                    <field_location unit="byte">1</field_location>
+                    <data_type>IEEE754MSBDouble</data_type>
+                    <field_length unit="byte">8</field_length>
+                    <unit>Sec</unit>
+                    <description>Start time of Good Time Interval</description>
+                </Field_Binary>
+                <Field_Binary>
+                    <name>STOP</name>
+                    <field_location unit="byte">9</field_location>
+                    <data_type>IEEE754MSBDouble</data_type>
+                    <field_length unit="byte">8</field_length>
+                    <unit>Sec</unit>
+                    <description>Stop time of Good Time Interval</description>
+                </Field_Binary>
+            </Record_Binary>
+        </Table_Binary>
+    </File_Area_Observational>
+</Product_Observational>

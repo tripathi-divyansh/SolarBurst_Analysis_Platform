@@ -1,0 +1,31 @@
+{
+  "controlled_injected_events": 32,
+  "recovered_within_35s": 32,
+  "other_proposals_in_signal_controls": 39,
+  "null_trials": 20,
+  "null_seconds": 16000,
+  "null_proposals": 5,
+  "null_counts": [
+    0,
+    0,
+    2,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "scope": "Software/simulation checks only; not real-data classification accuracy. Signal controls include known simulated artifacts."
+}

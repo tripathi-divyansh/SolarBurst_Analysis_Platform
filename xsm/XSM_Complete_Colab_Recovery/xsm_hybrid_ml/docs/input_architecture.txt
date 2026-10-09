@@ -1,0 +1,178 @@
+ISRO XSM SOLAR BURST IDENTIFICATION
+PROPOSED HYBRID ML + SIGNAL PROCESSING + PHYSICS ARCHITECTURE
+
+PURPOSE
+Automatically identify X-ray bursts in XSM light curves, estimate their physical properties, classify their morphology, reduce false alarms, and present results through a web/standalone interface.
+
+COMPLETE ARCHITECTURE
+RAW XSM DATA
+ -> DATA INPUT: FITS / ASCII / XLS / other formats
+ -> PREPROCESSING: sort time, handle NaN, duplicates, gaps, quality flags, careful noise reduction
+ -> BACKGROUND ESTIMATION: estimate B(t), calculate S(t)=F(t)-B(t)
+ -> BURST CANDIDATE DETECTION: Sigma/MAD + Wavelet + Bayesian Blocks
+ -> SEGMENTATION: find burst start, peak and end
+ -> PHYSICS FIT + SIGNAL FEATURES
+ -> FEATURE ENGINEERING
+ -> XGBOOST BURST CLASSIFIER: genuine burst? -> P(Burst)
+ -> MORPHOLOGY CLASSIFIER: assign burst type
+ -> OPTIONAL ML REGRESSION: independent predictions of rise time, decay time, duration, peak flux
+ -> CONFIDENCE + QUALITY CONTROL
+ -> FINAL OUTPUT / GUI
+
+1. DATA INPUT
+The system accepts XSM light-curve data in formats such as FITS, ASCII and XLS. The parser converts every format into a common representation: time, flux, and where available error/quality information.
+Input: raw file.
+Output: time array + flux array + optional metadata.
+
+2. PREPROCESSING
+Make the time series reliable without destroying real bursts.
+Operations: chronological sorting, duplicate timestamp handling, NaN/missing-value handling, gap detection, quality flags, invalid/instrumental measurement handling, and optional light smoothing.
+Important: do not automatically remove every extreme value; a real burst can itself be an extreme value.
+Output: clean/quality-controlled light curve.
+
+3. BACKGROUND ESTIMATION
+Observed signal can be represented approximately as F(t)=B(t)+S(t)+N(t), where F is observed flux, B is background, S is burst/excess signal, and N is noise.
+Estimate B(t), then calculate S(t)=F(t)-B(t).
+Possible methods: rolling robust statistics, LOWESS, robust smoothing, wavelet-based separation, Gaussian-process background modeling.
+Output: background B(t) and residual/excess signal S(t).
+
+4. BURST CANDIDATE DETECTION
+This stage asks: “Where might something interesting have happened?” It generates candidate regions rather than making the final decision.
+Sigma/MAD: finds statistically unusual excursions.
+Wavelet: finds localized structures at different time scales.
+Bayesian Blocks: finds statistically meaningful changes/change points.
+Output: candidate time windows and detection evidence/scores.
+
+5. SEGMENTATION
+Determine t_start, t_peak and t_end for each candidate.
+Duration = t_end - t_start.
+Rise Time = t_peak - t_start.
+Decay Time = t_end - t_peak.
+Peak detection can use height, prominence and width.
+
+6A. PHYSICS-BASED FITTING
+A burst can be modeled using a fast-rise/slow-decay (FRED-like) function, for example:
+F(t)=F0 + A(1-exp(-(t-t0)/tau_r))*exp(-(t-t0)/tau_d)
+where F0 is baseline, A is amplitude, t0 is reference time, tau_r is rise time constant and tau_d is decay time constant.
+Possible fitting tools: scipy.optimize.curve_fit or lmfit.
+Fit quality: R2, RMSE, AIC/BIC, residual analysis.
+Output: fit parameters, rise/decay characteristics, goodness-of-fit, residuals.
+
+6B. SIGNAL / SHAPE FEATURES
+Calculate peak flux, background flux, peak/background ratio, rise time, decay time, duration, FWHM, fluence, maximum rise/decay rates, skewness, kurtosis, wavelet energy, dominant wavelet scale, fit R2 and fit RMSE.
+Fluence is approximately integral of excess signal over time.
+
+7. FEATURE ENGINEERING
+Create one numerical feature vector per candidate, for example:
+[PeakFlux, BackgroundFlux, Peak/Background, RiseTime, DecayTime, Duration, FWHM, Fluence, MaxRiseRate, MaxDecayRate, Skewness, Kurtosis, WaveletEnergy, DominantWaveletScale, FitR2, FitRMSE]
+Not every feature is mandatory; select features using validation, domain reasoning and ablation studies.
+
+8. XGBOOST BURST CLASSIFIER
+Question: “Is this candidate a genuine X-ray burst?”
+Input: feature vector.
+Output: P(Burst).
+Example: P(Burst)=0.97. If validated threshold is 0.80, classify as burst; otherwise reject/flag as non-burst.
+XGBoost is a gradient-boosted decision-tree method suited to structured/tabular features.
+
+9. BURST MORPHOLOGY CLASSIFICATION
+After confirming a burst, assign a morphology/type. The PDF leaves classification criteria open for innovation.
+Possible team-defined classes: impulsive, fast-rise/slow-decay, long-duration, complex/multi-peaked.
+These are proposed classes, not categories explicitly specified by the PDF.
+Input: confirmed-burst features.
+Output: burst class + class probabilities.
+
+10. OPTIONAL ML REGRESSION
+The PDF requires parameters such as rise time, peak flux, duration, decay time constant and goodness of fit, but does not require these to be predicted specifically by ML.
+Physics fitting should be the primary measurement where appropriate.
+Optional XGBoost regression can independently predict rise time, decay time, duration and peak flux as a consistency check.
+Compare physics-fit and ML predictions. Large disagreement can flag poor fits, unusual events, false positives, or model limitations.
+
+11. CONFIDENCE / QUALITY CONTROL
+Combine candidate-detection strength, P(Burst), morphology probability, physics-fit quality and optional regression agreement.
+Output: final burst decision, confidence, warnings and quality indicators.
+
+FINAL SCIENTIST OUTPUT EXAMPLE
+BURST DETECTED
+Start time: 12:43:21
+Peak time: 12:43:24
+End time: 12:43:35
+Peak flux: 83.4
+Rise time: 2.8 s
+Decay time: 8.7 s
+Duration: 14.0 s
+Fluence: 431.2
+Morphology: Fast-rise/slow-decay
+Burst probability: 97%
+Fit R2: 0.94
+Confidence: HIGH
+
+ALGORITHM ROLE TABLE
+File Parser: reads/standardizes FITS, ASCII, XLS etc. -> time + flux + metadata.
+Quality Control: detects invalid values, duplicates, gaps -> clean/flagged arrays.
+Smoothing: reduces measurement noise when justified -> processed flux.
+Background Estimator: estimates baseline -> B(t), residual S(t).
+Sigma/MAD: detects unusual excursions -> candidate evidence.
+Wavelet: finds localized structures at different time scales -> coefficients/energy/candidates.
+Bayesian Blocks: detects statistical change points -> segments.
+Peak Detector: finds peak properties -> peak time, height, width, prominence.
+Physics Fit: models burst shape -> rise/decay parameters and fit quality.
+Feature Engineering: builds ML input -> feature vector.
+XGBoost Classifier #1: burst vs non-burst -> P(Burst).
+XGBoost Classifier #2: burst morphology -> class probabilities.
+XGBoost Regressor: optional independent parameter prediction -> predicted physical parameters.
+Confidence/QC: combines evidence -> final confidence/report.
+
+TRAINING PIPELINE
+Real XSM data / labelled data
+ -> preprocessing
+ -> candidate detection
+ -> segmentation
+ -> feature extraction
+ -> feature engineering
+ -> burst labels -> XGBoost burst classifier
+ -> morphology labels -> morphology classifier
+ -> validation/testing
+Optional regression uses reliable parameter targets from physics fits or carefully generated synthetic ground truth.
+
+INFERENCE PIPELINE
+New XSM file
+ -> parser
+ -> preprocessing
+ -> background estimation
+ -> candidate detection
+ -> segmentation
+ -> physics fitting + feature extraction
+ -> feature vector
+ -> trained XGBoost classifier
+ -> non-burst: discard/flag
+ -> burst: morphology classifier
+ -> optional regression
+ -> confidence/QC
+ -> final GUI report
+
+RECOMMENDED SOFTWARE STRUCTURE
+project/
+  data/
+  preprocessing/
+  detection/
+  segmentation/
+  physics/
+  features/
+  models/
+  evaluation/
+  gui/
+  tests/
+  documentation/
+
+EVALUATION
+Classification/detection: Precision, Recall, F1, ROC-AUC, PR-AUC, false-positive rate, false-negative rate, detection rate.
+Regression: MAE, RMSE, R2.
+Physics fitting: R2, RMSE, residuals, AIC/BIC where appropriate.
+Because the problem emphasizes minimal false alarms and maximum true signatures, false-positive analysis is especially important.
+
+CORE DESIGN PRINCIPLE
+Do not make every stage ML.
+Signal processing finds candidate events -> physics-based fitting measures the burst -> ML validates and classifies the event -> optional ML regression provides an independent consistency check -> confidence/QC -> scientist-facing GUI.
+
+FINAL ONE-LINE PIPELINE
+XSM file -> Parse -> Quality control -> Preprocess -> Background estimation -> Sigma/MAD + Wavelet + Bayesian Blocks -> Candidate burst -> Segmentation -> Physics fit + signal features -> Feature vector -> XGBoost burst classifier -> Morphology classifier -> Optional regression cross-check -> Confidence/QC -> Web/standalone GUI.

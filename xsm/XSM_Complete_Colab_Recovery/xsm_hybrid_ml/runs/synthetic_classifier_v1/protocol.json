@@ -1,0 +1,77 @@
+{
+  "version": "xsm-synthetic-classifier-v1",
+  "scope": "SYNTHETIC_ONLY_UNVALIDATED_ON_REAL_XSM",
+  "counts": [
+    96,
+    36,
+    60
+  ],
+  "seed_starts": {
+    "train": 20261009,
+    "validation": 20361009,
+    "test": 20461009
+  },
+  "pipeline_hash": "216cec93185069d84716a438ab8318d56f818f9d2727dd3c1730cbe3a0983711",
+  "feature_version": "fred-features-2",
+  "feature_candidates": [
+    "peak_snr",
+    "net_peak_observed",
+    "background_at_peak",
+    "peak_background_ratio",
+    "rise_observed_s",
+    "decay_observed_s",
+    "duration_observed_s",
+    "fwhm_observed_s",
+    "fluence_observed",
+    "max_rise_rate",
+    "max_decay_rate",
+    "skewness",
+    "kurtosis",
+    "wavelet_energy",
+    "wavelet_max",
+    "dominant_scale_s",
+    "n_peaks",
+    "cadence_s",
+    "sigma_evidence",
+    "wavelet_evidence",
+    "bb_evidence",
+    "edge_candidate",
+    "ctx_peak_fraction",
+    "ctx_roughness",
+    "ctx_flat_top_fraction",
+    "ctx_longest_above2_s",
+    "ctx_positive_area_over_peak_s"
+  ],
+  "matching_tolerance_s": 35,
+  "context_half_window_s": 45,
+  "supervised_threshold": 0.5,
+  "isolation_threshold": 0.5623955248658769,
+  "selection_rule": "Highest validation end-to-end event F1 at fixed threshold 0.5; ties prefer Random Forest",
+  "early_stopping": "XGBoost validation log loss, patience 30 boosting rounds",
+  "source_scale_groups": [
+    "20260716",
+    "20260913",
+    "20260916",
+    "20260917"
+  ],
+  "real_training_input_sha256": "16db562f85da918bd5cd3d2eb2865aa619847b6fee2bfd3107f5bb40b23a288b",
+  "versions": {
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "xgboost": "3.4.1",
+    "scikit-learn": "1.8.0",
+    "scipy": "1.17.0",
+    "astropy": "8.0.1",
+    "PyWavelets": "1.10.0"
+  },
+  "limitations": [
+    "No real candidate labels are created or modified.",
+    "Real training candidates supply approximate background/noise scales only; supervised classifiers train on simulation truth.",
+    "Gaussian or AR(1) noise plus smooth drift is not a validated instrument noise model.",
+    "Only four simulated burst shape families; short bursts and artifacts can overlap in shape.",
+    "No gaps, saturation, energy dependence, or actual housekeeping flags are simulated.",
+    "Fixed 35-second matching tolerance; duplicates count as false triggers.",
+    "Simulation performance and classifier scores are not calibrated real-XSM accuracy/probabilities.",
+    "All three simulation splits share a generator family; real-world transfer is unverified."
+  ]
+}
