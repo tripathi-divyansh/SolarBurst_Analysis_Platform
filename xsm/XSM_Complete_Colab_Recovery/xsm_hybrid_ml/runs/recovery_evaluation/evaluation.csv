@@ -1,0 +1,5 @@
+model,recovered,missed,false_triggers,event_precision,event_recall,event_f1,null_false_triggers,null_false_per_simulated_hour,null_simulated_hours
+Extraction only,40,0,122,0.24691358024691357,1.0,0.396039603960396,31,6.2,5.0
+Isolation Forest,39,1,67,0.36792452830188677,0.975,0.5342465753424658,19,3.8,5.0
+Random Forest,33,7,1,0.9705882352941176,0.825,0.8918918918918919,0,0.0,5.0
+XGBoost,37,3,2,0.9487179487179487,0.925,0.9367088607594937,0,0.0,5.0

@@ -1,0 +1,13 @@
+model,strength_band,injected,recovered,missed,recovery_percent
+Extraction only,Weak (2.5–4),2,2,0,100.0
+Extraction only,Medium (4–8),15,15,0,100.0
+Extraction only,Strong (8–12),23,23,0,100.0
+Isolation Forest,Weak (2.5–4),2,1,1,50.0
+Isolation Forest,Medium (4–8),15,15,0,100.0
+Isolation Forest,Strong (8–12),23,23,0,100.0
+Random Forest,Weak (2.5–4),2,2,0,100.0
+Random Forest,Medium (4–8),15,12,3,80.0
+Random Forest,Strong (8–12),23,19,4,82.6086956521739
+XGBoost,Weak (2.5–4),2,2,0,100.0
+XGBoost,Medium (4–8),15,14,1,93.33333333333333
+XGBoost,Strong (8–12),23,21,2,91.30434782608695

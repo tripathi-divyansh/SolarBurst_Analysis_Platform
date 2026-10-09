@@ -1,0 +1,9 @@
+{
+  "time": "TIME", "value": "RATE", "error": "ERROR",
+  "bin_width_s": 1.0, "exposure_s": 1.0,
+  "quantity": "count_rate", "unit": "count / s",
+  "epoch": "REPLACE_WITH_VERIFIED_PRODUCT_EPOCH",
+  "time_scale": "REPLACE_WITH_VERIFIED_TIME_SCALE",
+  "time_unit_s": 1.0, "time_position": "center",
+  "instrument": "XSM", "hdu": 1
+}
